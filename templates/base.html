@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Project{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    {% block extra_css %}
+    {% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="logo">
+                <a href="{% url 'core:index' %}">Home</a>
+            </div>
+    
+            <div class="search-wrapper">
+                <form method="get" action="{% url 'core:search_results' %}" class="search-form">
+                    <input type="text" name="q" placeholder="Search products, brands..." required>
+                    <button type="submit" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
+            </div>
+    
+            <div class="header-icons">
+                {% if user.is_authenticated %}
+                    <span>{{ user.username }}</span>
+                    <div class="user-dropdown">
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit">Logout</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:login_register' %}" title="Profile"><i class="fa-solid fa-user"></i></a>
+                {% endif %}
+                    <a href="{% url 'cart:cart_detail' %}" title="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+            </div>
+        </div>
+    </header>
+    
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

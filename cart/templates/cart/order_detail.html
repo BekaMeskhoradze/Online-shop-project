@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }} Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="order-container">
+  <h1 class="order-title">Order #{{ order.id }}</h1>
+  <div class="order-meta">
+    <p><strong>Status:</strong> {{ order.status }}</p>
+    <p><strong>Created at:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+  </div>
+
+  {% if order.items.exists %}
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Total Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr>
+          <td class="product-cell">
+            {% if item.product.image %}
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-thumb" />
+            {% else %}
+              <img src="{% static 'img/no-image.png' %}" alt="No image" class="product-thumb" />
+            {% endif %}
+            <span class="product-name">{{ item.product.name }}</span>
+          </td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ item.product.price|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p class="total-amount"><strong>Total Amount:</strong> ${{ order_total|floatformat:2 }}</p>
+  {% else %}
+    <p>No items found in this order.</p>
+  {% endif %}
+
+  <div class="back-link">
+    <a href="{% url 'cart:order_list' %}" class="btn-back">← Back to Orders</a>
+  </div>
+</div>
+{% endblock %}

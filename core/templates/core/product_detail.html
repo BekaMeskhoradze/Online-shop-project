@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}" />
+{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="product-container">
+  <h1 class="product-title">{{ product.name }}</h1>
+
+  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" />
+
+  <p class="product-price">Price: ${{ product.price }}</p>
+
+  <p class="product-description">{{ product.description }}</p>
+
+  <hr />
+
+  <h2 class="reviews-title">Reviews</h2>
+
+  {% if reviews %}
+  <ul class="reviews-list">
+    {% for review in reviews %}
+    <li class="review-item">
+      <div class="review-user">{{ review.user.username }}</div>
+      <div class="review-rating">Rating: {{ review.rating }} / 5</div>
+      {% if average_rating > 0 %}
+                <p class="product-info"><strong>Rating: </strong>{{ average_rating }}</p>
+              {% else %}
+                <p class="product-info">No ratings yet.</p>
+              {% endif %}
+      <div class="review-comment">{{ review.comment|linebreaksbr }}</div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No reviews yet.</p>
+  {% endif %}
+
+  <hr />
+
+  <h2 class="review-form-title">Write a Review</h2>
+
+  {% if user.is_authenticated %}
+  <form method="post" action="{% url 'core:product_detail' slug=product.slug %}" class="review-form">
+    {% csrf_token %}
+    {{ review_form.as_p }}
+    <button type="submit" name="submit_review">Submit Review</button>
+  </form>
+  {% else %}
+  <p class="login-message">You must be logged in to write a review.</p>
+  {% endif %}
+</div>
+{% endblock %}

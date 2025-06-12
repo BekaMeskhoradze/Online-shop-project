@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Orders{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+  <h2>Your Orders</h2>
+  {% if orders %}
+    <ul class="orders-list">
+      {% for order in orders %}
+        <li class="order-item">
+          <a href="{% url 'cart:order_detail' order.pk %}" class="order-link">
+            <div class="order-info">
+              <span class="order-id">Order #{{ order.id }}</span>
+              <span class="order-date">{{ order.created_at|date:"M d, Y H:i" }}</span>
+              <span class="order-status status-{{ order.status|lower }}">{{ order.status|capfirst }}</span>
+            </div>
+            <div class="order-arrow">→</div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="no-orders-msg">You don't have any orders yet.</p>
+  {% endif %}
+  <div class="back-to-cart-container">
+    <a href="{% url 'cart:cart_detail' %}" class="back-to-cart-btn">← Back to Cart</a>
+  </div>
+</div>
+{% endblock %}

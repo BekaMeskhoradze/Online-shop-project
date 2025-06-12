@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %} 
+<link rel="stylesheet" href="{% static 'css/index.css' %}" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+{% endblock %}
+{% block title %}Home page{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+
+    <aside class="left-sidebar">
+      <nav>
+        <ul>
+          {% for category in categories %}
+          <li style="position: relative;">
+            <a href="#" class="cat-items">{{ category.name }}</a>
+            {% if category.subcategories.all %}
+            <ul class="subcategory-dropdown">
+              {% for subcategory in category.subcategories.all %}
+              <li><a href="{% url 'core:product_list' subcategory.slug %}" class="subcat-items">{{ subcategory.name }}</a></li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </aside>
+  
+    <main class="main-content">
+      <h2 class="popular-product-header">Popular products</h2>
+      <div class="product-slider-container">
+        <div class="swiper mySwiper">
+          <div class="swiper-wrapper">
+            {% for product in popular_products %}
+            <div class="swiper-slide">
+              <a href="{% url 'core:product_detail' slug=product.slug %}" class="popular-product-card">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+                {% else %}
+                <img src="{% static 'images/default-image.png' %}" alt="Default Image" />
+                {% endif %}
+                <span class="product-name">{{ product.name }}</span>
+                <span>${{ product.price }}</span>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+      </div>
+  
+      <section class="main-section">
+        {% for product in products %}
+        <a href="{% url 'core:product_detail' slug=product.slug %}" class="product-link">
+          <div class="product-card">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+            {% else %}
+            <img src="{% static 'images/default-image.png' %}" alt="Default Image" />
+            {% endif %}
+            <div class="product-text-group">
+              <h3 class="product-name">{{ product.name }}</h3>
+              <p class="product-info"><strong>Price: </strong>${{ product.price }}</p>
+              <p class="product-info"><strong>In stock: </strong>{{ product.quantity }}</p>
+              {% if product.avg_rating > 0 %}
+                <p class="product-info"><strong>Rating: </strong>{{ product.avg_rating|floatformat:2 }}</p>
+              {% else %}
+                <p class="product-info">No ratings yet.</p>
+              {% endif %}
+              {% comment %} <p><strong>Views: </strong> {{ product.views }}</p> {% endcomment %}
+            </div>
+  
+            <form method="POST" action="{% url 'cart:add_to_cart' product.id %}">
+              {% csrf_token %}
+              <button type="submit" class="add-btn">Add to cart</button>
+            </form>
+          </div>
+        </a>
+        {% endfor %}
+      </section>
+  
+      <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="first">&laquo; first</a>
+        <a href="?page={{ page_obj.previous_page_number }}">prev</a>
+        <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+        <a href="?page={{ page_obj.number }}" class="current">{{ page_obj.number }}</a>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+        <a href="?page={{ page_obj.next_page_number }}">next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="last">last &raquo;</a>
+        {% endif %}
+      </div>
+    </main>
+  
+    <aside class="right-sidebar">
+      <form method="get" action="{% url 'core:product_filter' %}">
+  
+        <select name="subcategory" id="">
+          <option value="">Categories</option>
+          {% for subcategory in subcategories %}
+          <option value="{{ subcategory.slug }}">{{ subcategory.name }}</option>
+          {% endfor %}
+        </select>
+  
+        <select name="brand" id="">
+          <option value="">Brands</option>
+          {% for brand in brands %}
+          <option value="{{ brand.slug }}">{{ brand.name }}</option>
+          {% endfor %}
+        </select>
+  
+        <input type="number" name="min_price" placeholder="Min price" step="1" />
+        <input type="number" name="max_price" placeholder="Max price" step="1" />
+        <button type="submit">Filter</button>
+        <button type="button" onclick="window.location.href='{% url 'core:index' %}'">Reset</button>
+      </form>
+    </aside>
+  </div>
+  <script src="{% static 'js/index.js' %}"></script>
+{% endblock %}

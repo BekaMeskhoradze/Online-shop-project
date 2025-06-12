@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/search_result.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="search-results-wrapper">
+    {% if products %}
+        {% for product in products %}
+            <a href="{% url 'core:product_detail' product.slug %}" class="search-item">
+                <div class="item-image">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="{% static 'img/no-image.png' %}" alt="No Image">
+                    {% endif %}
+                </div>
+                <div class="item-details">
+                    <h4>{{ product.name }}</h4>
+                    <p>{{ product.description }}</p>
+                    <div class="item-bottom">
+                        <span class="price">${{ product.price }}</span>
+                        <form action="{% url 'cart:add_to_cart' product.id %}" method="post" class="add-to-cart-form">
+                            {% csrf_token %}
+                            <button type="submit" class="add-btn">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <p class="no-results">No products found.</p>
+    {% endif %}
+</div>
+{% endblock %}

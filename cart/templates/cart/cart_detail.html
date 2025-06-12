@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Cart{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cart.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+  <h1>Your Cart</h1>
+  <div style="text-align: center; margin-bottom: 20px;">
+    <p>
+      <a href="{% url 'cart:order_list' %}" class="btn btn-orders">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true" width="20" height="20" style="vertical-align: middle; margin-right: 8px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18M9 9h6m-6 6h6m-6 6h6"/>
+        </svg>
+        Your Orders
+      </a>
+    </p>
+  </div>  
+  {% if cart.items.exists %}
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Price Per Unit</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart.items.all %}
+        <tr>
+          <td class="product-cell">
+            {% if item.product.image %}
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-thumb" />
+            {% else %}
+              <img src="{% static 'img/no-image.png' %}" alt="No image" class="product-thumb" />
+            {% endif %}
+            {{ item.product.name }}
+          </td>
+          <td>
+            <form method="post" action="{% url 'cart:update_cart_item' item.id %}" class="quantity-form">
+              {% csrf_token %}
+              <button type="submit" name="action" value="decrement" class="qty-btn">-</button>
+              <span class="quantity">{{ item.quantity }}</span>
+              <button type="submit" name="action" value="increment" class="qty-btn">+</button>
+            </form>
+          </td>
+          <td>${{ item.product.price }}</td>
+          <td>${{ item.item_total }}</td>
+          <td>
+            <form method="post" action="{% url 'cart:remove_from_cart' item.id %}">
+              {% csrf_token %}
+              <button type="submit" class="remove-btn">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p class="total-amount"><strong>Total Amount:</strong> ${{ cart.total_price }}</p>
+
+    <form method="post" action="{% url 'cart:create_order' %}">
+      {% csrf_token %}
+      <button type="submit" class="order-btn">Place Order</button>
+    </form>
+
+  {% else %}
+    <p class="empty-msg">Your cart is empty.</p>
+  {% endif %}
+</div>
+{% endblock %}
