@@ -16,7 +16,7 @@
         <ul>
           {% for category in categories %}
           <li style="position: relative;">
-            <a href="#" class="cat-items">{{ category.name }}</a>
+            <a href="{% url 'core:category_list' category.slug %}" class="cat-items">{{ category.name }}</a>
             {% if category.subcategories.all %}
             <ul class="subcategory-dropdown">
               {% for subcategory in category.subcategories.all %}

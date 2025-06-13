@@ -48,6 +48,11 @@
     {{ review_form.as_p }}
     <button type="submit" name="submit_review">Submit Review</button>
   </form>
+  <form method="post" action="{% url 'cart:add_to_cart' product.id %}">
+    {% csrf_token %}
+    <button type="submit" class="add-to-cart-button">Add to Cart</button>
+  </form>
+
   {% else %}
   <p class="login-message">You must be logged in to write a review.</p>
   {% endif %}

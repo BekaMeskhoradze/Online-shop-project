@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/category_list.css' %}" />
+{% endblock %}
+
+{% block title %} {{ category.name }} {% endblock %}
+
+{% block content %}
+<h2 class="category-title">{{ category.name }}</h2>
+
+{% for subcategory in subcategories %}
+  <section class="subcategory-section">
+    <h3 class="subcategory-title">{{ subcategory.name }}</h3>
+
+    {% if subcategory.products.all %}
+      <ul class="product-list">
+        {% for product in subcategory.products.all %}
+          <li class="product-item">
+            <a href="{% url 'core:product_detail' product.slug %}" class="product-link">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" />
+              {% else %}
+                <img src="{% static 'images/default-image.png' %}" alt="Default Image" class="product-image" />
+              {% endif %}
+              <h4 class="product-name">{{ product.name }}</h4>
+            </a>
+            <p class="product-price">Price: ${{ product.price }}</p>
+            <p class="product-description">{{ product.description|truncatewords:20 }}</p>
+            {% if product.avg_rating %}
+            <p class="product-rating">Rating: {{ product.avg_rating }}</p>
+            {% else %}
+            <p class="product-rating">Not rated yet.</p>
+            {% endif %}
+            <form method="post" action="{% url 'cart:add_to_cart' product.id %}" class="add-to-cart-form">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-add-cart">Add to cart</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="no-products-message">No products found.</p>
+    {% endif %}
+  </section>
+{% endfor %}
+
+{% endblock %}

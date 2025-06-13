@@ -1,8 +1,8 @@
 from django.core.paginator import Paginator
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.views.generic import DetailView, ListView
 from .models import Category, Product, SubCategory, Brand, Review
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import ReviewForm
 
@@ -32,6 +32,25 @@ class CategoryListView(ListView):
         context['page_obj'] = page_obj
         context['popular_products'] = Product.objects.order_by('-views')[:10]
 
+        return context
+
+
+class CategoryProductListView(ListView):
+    model = SubCategory
+    template_name = 'core/category_list.html'
+    context_object_name = 'subcategories'
+
+    def get_queryset(self):
+        return SubCategory.objects.filter(
+            category__slug=self.kwargs['slug']
+        ).prefetch_related(
+            Prefetch('products', queryset=Product.objects.order_by('-created_at'))
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category = get_object_or_404(Category, slug=self.kwargs['slug'])
+        context['category'] = category
         return context
 
 class SubCategoryProductListView(ListView):
